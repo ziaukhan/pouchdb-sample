@@ -11,7 +11,9 @@
   var db = new PouchDB('todos');
 
   // Replace with remote instance, this just replicates to another local instance.
-  var remoteCouch = 'todos_remote';
+  var SYNC_GATEWAY_URL = 'http://127.0.0.1:4984/todos/';
+  var remoteCouch = SYNC_GATEWAY_URL;
+  //var remoteCouch = 'todos_remote';
 
   db.changes({
     since: 'now',
@@ -203,7 +205,10 @@
 
   function startSessionAndSync(accessToken, userId) {
     migrateGuestToUser(userId);
+    startSyncGatewaySession(accessToken);
   }
+
+
 
   function migrateGuestToUser(userId) {
     var list = {
@@ -219,7 +224,20 @@
     })
   }
 
-
+  function startSyncGatewaySession(accessToken) {
+    var request = new XMLHttpRequest();
+    request.open('POST', SYNC_GATEWAY_URL + '/_facebook', true);
+    request.setRequestHeader('Content-Type', 'application/json');
+    request.onreadystatechange = function () {
+      if (request.readyState == 4 && request.status == 200) {
+        console.log('New SG session, starting sync!');
+        sync();
+      }
+      ;
+      request.withCredentials = true;
+      request.send(JSON.stringify({"access_token": accessToken}));
+    }
+  }
 
   window.fbAsyncInit = function() {
     FB.init({
