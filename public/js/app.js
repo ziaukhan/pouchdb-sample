@@ -23,7 +23,11 @@
     var todo = {
       _id: new Date().toISOString(),
       title: text,
-      checked: false
+      checked: false,
+      //==================
+      type: 'task',
+      list_id: '123',
+      created_at: new Date()
     };
     db.put(todo, function callback(err, result) {
       if (!err) {
@@ -196,6 +200,26 @@
       statusChangeCallback(response);
     });
   }
+
+  function startSessionAndSync(accessToken, userId) {
+    migrateGuestToUser(userId);
+  }
+
+  function migrateGuestToUser(userId) {
+    var list = {
+      _id: '123',
+      type: 'list',
+      title: 'TodoMVC list',
+      owner: 'p:' + userId
+    };
+    db.put(list, function(err, result) {
+      if (!err) {
+        console.log('Successfully saved user list');
+      }
+    })
+  }
+
+
 
   window.fbAsyncInit = function() {
     FB.init({
