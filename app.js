@@ -1,41 +1,40 @@
 /**
- * Created by admin on 8/4/2015.
+ * Created by ZiaKhan
  */
 
+var express    = require('express'),
+    bodyParser = require('body-parser'),
+    morgan     = require('morgan');
 
-// Load the Connect module
-var connect = require('connect');
+var app = express();
+app.set('port', (process.env.PORT || 9000));
+app.use(express.static(__dirname + '/public'));
 
-// Create a Connect app
-var app = connect();
+//using morgan logger
+app.use(morgan('dev'));
 
-// Configure the app
-app.use(connect.logger()); // Logs HTTP/HTTPS requests
-app.use(connect.favicon(__dirname + '/favicon.ico')); // Serve a favicon file
-app.use(connect.static(__dirname + '/public')); // Static file hosting from the `./public` directory
-app.use(connect.compress()); // Compress all responses using Gzip
-app.use(connect.json()); // Parse JSON request body into `request.body`
-app.use(connect.urlencoded()); // Parse form in request body into `request.body`
-app.use(connect.cookieParser()); // Parse cookies in the request headers into `request.cookies`
-app.use(connect.query()); // Parse query string into `request.query`
-app.use(connect.timeout(20000)); // Set maximum time to complete a request to 20 seconds (20000 ms)
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
-// Add custom logic
-// Send a hello message unless the "cruel" querystring is set
-app.use(function (request, response, next) {
-    if (request.query.cruel) return next();
-    response.end('hello world\n');
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
 });
 
-// The next middleware function in the chain
-app.use(function (request, response, next) {
-    response.end('goodbye cruel world\n');
+app.get('/', function(req, res) {
+    res.send('Server is running..')
 });
 
-// Listen for HTTP/HTTPS conncections on port 3000
-app.listen(6000);
 
-console.log('Server running...');
-console.log('Try http://xyz.runnable.com/');
-console.log('and http://xyz.runnable.com/?cruel=true');
-console.log('and http://xyz.runnable.com/index.txt');
+
+
+process.on('uncaughtException', function (err) {
+    console.error(err);
+    console.log("Node NOT Exiting...");
+    console.log(err)
+
+});
+app.listen(app.get('port'), function() {
+    console.log("Panacloud REST API Node app is running at localhost:" + app.get('port'));
+});
