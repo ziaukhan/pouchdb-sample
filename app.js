@@ -5,11 +5,15 @@
 var express    = require('express'),
     bodyParser = require('body-parser'),
     morgan     = require('morgan');
+var favicon = require('static-favicon');
 
 var app = express();
 app.set('port', (process.env.PORT || 9000));
 app.use(express.static(__dirname + '/public'));
 
+app.set('view engine', 'html');
+app.engine('html', require('ejs').renderFile);
+app.use(favicon());
 //using morgan logger
 app.use(morgan('dev'));
 
