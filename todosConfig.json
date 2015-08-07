@@ -10,9 +10,9 @@
 "MaxAge": 17280000
 },
 "databases": {
-"horsetest": {
+"todos": {
  "server" : "http://localhost:8091",
-  "bucket" : "horsetest",
+        "bucket" : "todos",
   "users": {
     "GUEST": {"disabled": true}
   },

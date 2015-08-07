@@ -7,18 +7,28 @@
   var syncDom = document.getElementById('sync-wrapper');
 
   // EDITING STARTS HERE (you dont need to edit anything above this line)
-
-  var db = new PouchDB('todos');
+ //commit test
+ var db = new PouchDB('horsetest');
+  //var db = new PouchDB('todos');
 
   // Replace with remote instance, this just replicates to another local instance.
-  var SYNC_GATEWAY_URL = 'http://127.0.0.1:4984/todos/';
+  var SYNC_GATEWAY_URL = 'http://licianhorse.com:9984/horsetest/';
+  //var SYNC_GATEWAY_URL = 'http://127.0.0.1:9984/todos/';
   var remoteCouch = SYNC_GATEWAY_URL;
   //var remoteCouch = 'todos_remote';
 
   db.changes({
-    since: 'now',
+    //since: 'now',
+    //include_docs:true,
     live: true
-  }).on('change', showTodos);
+  //}).on('change', showTodos);
+  }).on('change', changes);
+
+    function changes(){
+        console.log('changes called');
+        showTodos();
+
+    }
 
   // We have to create a new todo document and enter it in the database
   function addTodo(text) {
@@ -28,7 +38,7 @@
       checked: false,
       //==================
       type: 'task',
-      list_id: '123',
+      list_id: +'123',
       created_at: new Date()
     };
     db.put(todo, function callback(err, result) {
@@ -41,6 +51,9 @@
   // Show the current list of todos by reading them from the database
   function showTodos() {
     db.allDocs({include_docs: true, descending: true}, function(err, doc) {
+        console.log('number of rows');
+        if(doc && doc.rows)console.log(doc.rows.length);
+
       redrawTodosUI(doc.rows);
     });
   }
@@ -69,10 +82,41 @@
 
   // Initialise a sync with the remote server
   function sync() {
+      console.log('sync called');
     syncDom.setAttribute('data-sync-state', 'syncing');
     var opts = {live: true};
-    db.replicate.to(remoteCouch, opts, syncError);
-    db.replicate.from(remoteCouch, opts, syncError);
+    db.replicate.to(remoteCouch, opts, syncErrorTo);
+      db.replicate.from(remoteCouch, opts, syncErrorFrom);
+      /*var rep = PouchDB.replicate('horsetest', 'http://licianhorse.com:9984/horsetest/', {
+          live: true,
+          retry: true
+      }).on('change', function (info) {
+         debugger;
+          // handle change
+      }).on('paused', function () {
+          debugger;
+          // replication paused (e.g. user went offline)
+      }).on('active', function () {
+          debugger;
+          // replicate resumed (e.g. user went back online)
+      }).on('denied', function (info) {
+          debugger;
+          // a document failed to replicate, e.g. due to permissions
+      }).on('complete', function (info) {
+          debugger;
+          // handle complete
+      }).on('error', function (err) {
+          debugger;
+          // handle error
+      });
+
+      //rep.cancel(); // whenever you want to cancel
+
+    window.rep = function(){
+      db.replicate.to(remoteCouch, opts, syncErrorTo);
+
+      db.replicate.from(remoteCouch, opts, syncErrorFrom);
+    }*/
   }
 
   // CODE MISSING FOR ToDoLite syncing
@@ -82,9 +126,18 @@
   // EDITING STARTS HERE (you dont need to edit anything below this line)
 
   // There was some form or error syncing
-  function syncError() {
+  function syncErrorTo(message) {
+
+      console.log('Error in replicate.to');
+
+      console.log(JSON.stringify(message));
     syncDom.setAttribute('data-sync-state', 'error');
   }
+    function syncErrorFrom(message) {
+        console.log('Error in replicate.from');
+        console.log(JSON.stringify(message));
+        syncDom.setAttribute('data-sync-state', 'error');
+    }
 
   // User has double clicked a todo, display an input so they can edit the title
   function todoDblClicked(todo) {
@@ -165,7 +218,7 @@
   }
 
   addEventListeners();
-  showTodos();
+  //showTodos();
 
   if (remoteCouch) {
     //sync();
@@ -219,14 +272,17 @@
     };
     db.put(list, function(err, result) {
       if (!err) {
-        console.log('Successfully saved user list');
+        console.log('Successfully saved default item in list');
+      }else{
+          console.log('err in saving default item:',err)
       }
     })
   }
 
   function startSyncGatewaySession(accessToken) {
     var request = new XMLHttpRequest();
-    request.open('POST', SYNC_GATEWAY_URL + '/_facebook', true);
+    //request.open('POST', SYNC_GATEWAY_URL + '/_facebook', true);
+    request.open('POST', SYNC_GATEWAY_URL + '_facebook', true);
     request.setRequestHeader('Content-Type', 'application/json');
     request.onreadystatechange = function () {
       if (request.readyState == 4 && request.status == 200) {
@@ -234,15 +290,21 @@
         sync();
       }
       ;
+
+    }
       request.withCredentials = true;
       request.send(JSON.stringify({"access_token": accessToken}));
-    }
   }
 
   window.fbAsyncInit = function() {
     FB.init({
       //appId      : '789449301118942',
+      //appId      : '814270645358597',
+      //appId      : '106753429505308',
+      //appId      : '1646431982245569',
+      //appId      : '426896627502026',
       appId      : '814270645358597',
+
       cookie     : true,  // enable cookies to allow the server to access
                           // the session
       xfbml      : true,  // parse social plugins on this page
