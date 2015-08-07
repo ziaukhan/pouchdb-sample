@@ -8,12 +8,12 @@
 
   // EDITING STARTS HERE (you dont need to edit anything above this line)
  //commit test
- var db = new PouchDB('horsetest');
-  //var db = new PouchDB('todos');
+ //var db = new PouchDB('horsetest');
+  var db = new PouchDB('todos');
 
   // Replace with remote instance, this just replicates to another local instance.
-  var SYNC_GATEWAY_URL = 'http://licianhorse.com:9984/horsetest/';
-  //var SYNC_GATEWAY_URL = 'http://127.0.0.1:9984/todos/';
+  //var SYNC_GATEWAY_URL = 'http://licianhorse.com:9984/horsetest/';
+  var SYNC_GATEWAY_URL = 'http://127.0.0.1:9984/todos/';
   var remoteCouch = SYNC_GATEWAY_URL;
   //var remoteCouch = 'todos_remote';
 
@@ -298,13 +298,7 @@
 
   window.fbAsyncInit = function() {
     FB.init({
-      //appId      : '789449301118942',
-      //appId      : '814270645358597',
-      //appId      : '106753429505308',
-      //appId      : '1646431982245569',
-      //appId      : '426896627502026',
-      appId      : '864683113581607',
-
+      appId      : '',
       cookie     : true,  // enable cookies to allow the server to access
                           // the session
       xfbml      : true,  // parse social plugins on this page
